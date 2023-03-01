@@ -1,0 +1,41 @@
+Hello
+
+All the files that have been given to me are in the folder 'Code Files'
+
+The assessment instructions are 'assessment_instructions.pdf' 
+This file provides a long explanation about the problem and the files however I have written a quick guide below.
+
+The other pdf documents are the only resources the teacher has given us in relation to using functions and objects in C++.
+Essentially we have had 3 hours of lesson time to learn how to use functions and classes in C++ bearing in mind it was already a bit confusing in Python. 
+
+Ive managed to work out how to initialise the class and use some of the functions within it however some are showing errors and I do not know how to fix it.
+
+As well as this I cannot really understand the instructions i.e. the header file, about how to use the classes. Im confused about why 'const' has to be used all the time.
+
+Inside the folder 'code_files' there are files 'body.cpp' and 'body.hpp' defining a class called 'Body' which is used to store information about the planets.
+
+The files 'vector3d.cpp', 'vector3d.hpp' define a class called 'vec' which are functions for manipulating vectors in different ways.
+
+The file 'compute_orbitals.cpp' is the file that I have to write my functions into and run. 
+
+The code is compiled by the command below on a bash terminal.
+g++ -std=c++17 vector3d.cpp body.cpp compute_orbits.cpp -o compute_orbits
+
+The code can be run using the command below on a bash terminal(requires 4 args) compute_orbits <input_file> <output_file> <dt> <T> <Tsave>
+./compute_orbits sun_earth.csv test_case.csv 1e-3 1 1
+ 
+The compute_orbits file has comments to show where I am supposed to write the code.
+The code should compile without any errors as long as it is unchanged from when I sent it.
+The first problem I have run into is that I cannot assign a value to a variable in the class 'body'
+
+Line 120
+// Sets the gpe value to the system 1. Doesnt work?
+    //system[1].set_gpe(gpe);
+    //system[0].set_gpe(gpe);
+	
+My understanding is that this code should assign the variable 'gpe' to the object of system[1] and system[2] however it gives an error.
+To test it yourself just uncomment the lines of code. 
+
+If theres anything else you want then text for the fastest response.
+
+Thanks
