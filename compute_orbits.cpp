@@ -97,7 +97,8 @@ int main(int argc, char* argv[])
 // ADD YOUR FUNCTION IMPLEMENTATIONS HERE
 double compute_energy_L(std::vector<body> &system)
 {
-    int N;
+    int N = system.size();
+    std::cout << N << std::endl;
     int i;
     int j;
     int k;
