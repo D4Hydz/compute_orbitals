@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 #include <iomanip>
-// hello1
+#include <cmath>
 #include "vector3d.hpp"
 #include "body.hpp"
 
@@ -21,7 +21,8 @@ using std::cout, std::endl;
 
 // -----------------------------------------------------------
 // ADD YOUR FUNCTION DECLARATIONS HERE
-double compute_energy_L(std::vector<body> &system);
+void compute_energy_L(std::vector<body> &system);
+void update_acc(std::vector<body> &system);
 
 
 // -----------------------------------------------------------
@@ -77,6 +78,7 @@ int main(int argc, char* argv[])
   // -----------------------------------------------------------
   // ADD YOUR CODE HERE
   compute_energy_L(system);
+  update_acc(system);
   
 
 
@@ -95,7 +97,54 @@ int main(int argc, char* argv[])
 
 // -----------------------------------------------------------
 // ADD YOUR FUNCTION IMPLEMENTATIONS HERE
-double compute_energy_L(std::vector<body> &system)
+void update_acc(std::vector<body> &system)
+{
+  int N = system.size();
+  int i;
+  int j;
+  vec acceleration;
+  vec answer;
+  vec pos1;
+  vec pos2;
+  double mass1;
+  vec distance;
+  double length;
+  double length_cubed;
+
+  for (i = 0; i < N; i++)
+    {
+      // Initialise variables for planet 1
+      vec acceleration(0,0,0);
+      pos1 = system[i].get_pos();
+      mass1 = system[i].get_mass();
+
+      for (j=0; j < N; j++)
+      {
+        if (i!=j)
+        {
+          // Initialise variables for planet 2
+          pos2 = system[j].get_pos();
+
+          // Calculates the vector between them.
+          distance = pos1 -(pos2);
+          
+          // Calculates the length of the vector.
+          // It will always be positive as its been squared.
+          length = distance.length();
+          length_cubed = pow(length, 3);
+          answer = distance/=(length_cubed);
+          answer = answer*=(mass1);
+
+          acceleration +(answer);
+          
+
+        }
+      }
+    }
+    system[i].set_acc(acceleration);
+}
+
+void compute_energy_L(std::vector<body> &system)
 {
     int N = system.size();
     std::cout << N << std::endl;
@@ -176,7 +225,7 @@ double compute_energy_L(std::vector<body> &system)
     
     
     
-    return EXIT_SUCCESS;
+    //return EXIT_SUCCESS;
 }
 
 // -----------------------------------------------------------
