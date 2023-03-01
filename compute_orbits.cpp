@@ -97,56 +97,81 @@ int main(int argc, char* argv[])
 // ADD YOUR FUNCTION IMPLEMENTATIONS HERE
 double compute_energy_L(std::vector<body> &system)
 {
-    // Creates variables for the positions of the 2 bodies.
-    
-    vec pos1 = system[0].get_pos();
-    vec pos2 = system[1].get_pos();
-    double mass1 = system[0].get_mass();
-    double mass2 = system[1].get_mass();
-    vec velocity1 = system[0].get_vel();
-    vec velocity2 = system[1].get_vel();
-    
-    // Calculates the vector between them.
-    vec distance = pos1 -(pos2);
-    std::cout << "Vector distance " << distance << std::endl;
-    
-    // Calculates the length of the vector.
-    // I need to make sure it is positive though...
-    double length = distance.length();
-    std::cout << "Length " << length << std::endl;
-    
-    // Calculates the gpe.
-    double gpe = -(mass1*mass2)/length;
-    //std::cout << "gpe" << gpe << std::endl;
-    
-    // Sets the gpe value to the system 1.
-    system[1].set_gpe(gpe);
-    system[0].set_gpe(gpe);
-    
-    // Output and check it is a valid value.
-    double a = system[1].get_gpe();
-    //std::cout << "gpe " << a << std::endl;
-    
-    // Calculates the kinetic energy
-    double ke2 = velocity2.dot(velocity2);
-    ke2 *= 0.5 * mass2;
-    
-    double ke1 = velocity1.dot(velocity1);
-    ke1 *= 0.5 * mass1;
-    
-    // Sets the variable for kinetic energy
-    system[1].set_ke(ke2);
-    system[0].set_ke(ke1);
-    
-    // Calculates the angular momentum vector
-    vec L1 = pos1*(mass1);
-    vec L2 = pos2*(mass2);
-    L1 = L1.cross(velocity1);
-    L2 = L2.cross(velocity2);
-    
-    system[0].set_L(L1);
-    system[1].set_L(L2);
-    
+    int N;
+    int i;
+    int j;
+    int k;
+    vec pos;
+    vec pos1; 
+    vec pos2;
+    double mass;
+    double mass1; 
+    double mass2; 
+    vec velocity;
+    vec velocity1; 
+    vec velocity2; 
+    vec distance;
+    double length;
+    double gpe = 0.;
+    double ke;
+    vec L;
+
+    for (i = 0; i < N; i++)
+    {
+      // Resets the value of gpe for each planet
+      gpe = 0.0;
+      // Initialise variables for planet 1
+      pos1 = system[i].get_pos();
+      mass1 = system[i].get_mass();
+      velocity1 = system[i].get_vel();
+
+      for (j=0; j < N; j++)
+      {
+        if (i!=j)
+        {
+          // Initialise variables for planet 2.
+          pos2 = system[j].get_pos();
+          mass2 = system[j].get_mass();
+          velocity2 = system[j].get_vel();
+
+          // Calculates the vector between them.
+          distance = pos1 -(pos2);
+          
+          // Calculates the length of the vector.
+          // It will always be positive as its been squared.
+          length = distance.length();
+          
+          // Calculates the gpe.
+          
+          gpe += -(mass1*mass2)/length;
+          //std::cout << "gpe" << gpe << std::endl;
+          
+          // Sets the gpe value to the system 1.
+          system[i].set_gpe(gpe);
+          
+        }
+      }
+    }
+
+    for (k = 0; k < N; k++) 
+    {
+      // Calculates the kinetic energy 'ke'
+      velocity = system[k].get_vel();
+      mass = system[k].get_mass();
+      ke = velocity.dot(velocity);
+      ke *= 0.5 * mass;
+     
+      // Sets the variable for kinetic energy
+      system[k].set_ke(ke);
+      
+      // Calculates the angular momentum vector 'L'
+      pos = system[k].get_pos();
+      L = pos*(mass);
+      L = L.cross(velocity);
+
+      // Sets the angular momentum variable for this planet.
+      system[k].set_L(L);
+    }
     
     
     
