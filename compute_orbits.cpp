@@ -78,14 +78,36 @@ int main(int argc, char* argv[])
 
   // -----------------------------------------------------------
   // ADD YOUR CODE HERE
-  compute_energy_L(system);
-  update_acc(system);
-  
+  // Initialise variables
+  double total_time;
+  int Tsave_counter = 0;
 
+  // Loop steps until it reaches total number for time steps 'T'.
+  for (int t=1; t<=T; t++)
+  {
+    // Runs Vel_verlet function.
+    vel_verlet(system, dt);
+    
+    // Adds 1 to Tsave step counter.
+    Tsave_counter++;
 
-  save_data(savefile, system, 0); // Example of saving data (for initial state here) 
+    // Checks if step counter is equal to Tsave.
+    if (Tsave_counter == Tsave)
+    {
+      // Calculates the total time at this timestep.
+      total_time = t*dt;
 
-
+      // Computes energies and momentum and saves data to file.
+      compute_energy_L(system);
+      save_data(savefile, system, total_time);
+      
+      // Reset Tsave counter to 0
+      Tsave_counter = 0;   
+    }
+  }
+  //compute_energy_L(system);
+  //update_acc(system);
+  //save_data(savefile, system, 0); // Example of saving data (for initial state here) 
 
   // -----------------------------------------------------------
   
@@ -112,6 +134,7 @@ void vel_verlet(std::vector<body> &system, double dt)
   update_acc(system);
   std::vector<body> new_system = system;
 
+  // Loop through planets in the system updating velocity and acceleration.
   for (i = 0; i < N; i++)
     {
       //Initialise planet variables
@@ -189,8 +212,6 @@ void update_acc(std::vector<body> &system)
 
           // Sums the different accelerations on the planet.
           acceleration +(answer);
-          
-
         }
       }
     }

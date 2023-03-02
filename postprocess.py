@@ -4,7 +4,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
-savefile = "./test_case.csv"   #Rename to required output file
+savefile = "test_case.csv"   #Rename to required output file
 
 #Read in the .csv data file: 
 file = open(savefile)
