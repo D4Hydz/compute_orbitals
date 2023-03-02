@@ -82,6 +82,9 @@ int main(int argc, char* argv[])
   double total_time;
   int Tsave_counter = 0;
 
+  compute_energy_L(system);
+  save_data(savefile, system, total_time);
+
   // Loop steps until it reaches total number for time steps 'T'.
   for (int t=1; t<=T; t++)
   {
