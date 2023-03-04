@@ -81,6 +81,13 @@ int main(int argc, char* argv[])
   // Initialise variables
   double total_time;
   int Tsave_counter = 0;
+  update_acc(system);
+
+  for (int i =0; i<N; i++)
+  {
+    cout << "planet " << i << "acceleration" << system[i].get_acc() << endl;
+  }
+
 
   compute_energy_L(system);
   save_data(savefile, system, total_time);
@@ -148,7 +155,12 @@ void vel_verlet(std::vector<body> &system, double dt)
       
       // Calculate components of the equation.
       velocity = velocity *=(dt);
-      acceleration = acceleration*=(0.5 * dt * dt);
+      
+      acceleration*=(0.5 * dt * dt);
+
+      
+
+      //acceleration = acceleration*=(0.5 * dt * dt);
 
       // This could cause an error
       // Calculates the new position at the new time.
@@ -214,12 +226,12 @@ void update_acc(std::vector<body> &system)
           //answer = answer*=(mass1);
 
           // Sums the different accelerations on the planet.
-          acceleration +(answer);
+          acceleration = acceleration +=(answer);
         }
       }
+      // Sets acceleration variable of planet.
+      system[i].set_acc(acceleration);
     }
-    // Sets acceleration variable of planet.
-    system[i].set_acc(acceleration);
 }
 
 void compute_energy_L(std::vector<body> &system)
