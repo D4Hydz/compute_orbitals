@@ -127,99 +127,98 @@ void vel_verlet(std::vector<body> &system, double dt)
 {
   int N = system.size();
   int i;
+  dt = dt;
   vec pos;
+  vec posc;
   vec velocity;
-  vec new_velocity;
-  vec acceleration; 
+  vec velocityc;
+  vec acceleration;
+  vec accelerationc;
   vec new_acceleration;
-  vec add_acceleration;
-  vec new_pos;
-  update_acc(system);
-  std::vector<body> new_system = system;
-
-  // Loop through planets in the system updating velocity and acceleration.
-  for (i = 0; i < N; i++)
-    {
-      //Initialise planet variables
-      
-      pos = system[i].get_pos();
-      velocity = system[i].get_vel();
-      acceleration = system[i].get_acc();
-      
-      // Calculate components of the equation.
-      velocity = velocity *=(dt);
-      acceleration = acceleration*=(0.5 * dt * dt);
-
-      // This could cause an error
-      // Calculates the new position at the new time.
-      new_pos = pos +=(velocity)+=(acceleration);
-      
-      // Sets new positions of planet
-      new_system[i].set_pos(new_pos);
-
-      // Calculates the new acceleration of planet
-      update_acc(new_system);
-
-      // Calculates new velocity of planet using old and new variables
-      new_acceleration = new_system[i].get_acc();
-      add_acceleration = new_acceleration +=(acceleration);
-      new_velocity = add_acceleration*=(dt*0.5);
-      new_velocity = new_velocity +=(velocity);
-
-      // Saves new velocity.
-      new_system[i].set_vel(new_velocity);
-    }
+  vec new_position;
+  vec new_velocity;
   
-  // Sets all the new values back to the origonal object 'system'
+  std::vector<body> new_system = system;
+  update_acc(system);
+
+  // Loop through planets in the system updating velocity.
+  for (i = 0; i < N; i++)
+  {
+    pos = system[i].get_pos();
+    velocity = system[i].get_vel();
+    acceleration = system[i].get_acc();
+    
+    // Calculates and sets new position.
+    new_position = pos+=(velocity*=(dt))+=(acceleration*=(dt*dt*0.5));
+    new_system[i].set_pos(new_position);
+  }
+  
+  // Calculates new accelerations based on all the new positions.
+  update_acc(new_system);
+
+  for (i = 0; i < N; i++)
+  {
+    //Calculates and sets the new velocities based on the new acceleration and old velocity.
+    new_acceleration = new_system[i].get_acc();
+    acceleration = system[i].get_acc();
+    velocity = system[i].get_vel();
+
+
+    new_velocity = velocity+=((new_acceleration+=(acceleration))*=(dt*0.5));
+    new_system[i].set_vel(new_velocity);
+
+  }
   system = new_system;
-}
+} 
 
 void update_acc(std::vector<body> &system)
 {
   int N = system.size();
-  int i;
+  int p;
   int j;
   vec acceleration;
   vec answer;
-  vec pos1;
-  vec pos2;
-  double mass1;
+  vec posp;
+  vec posj;
+  double massj;
   vec distance;
   double length;
   double length_cubed;
 
-  for (i = 0; i < N; i++)
+  for (p = 0; p < N; p++)
     {
       // Initialise variables for planet 1.
       vec acceleration(0,0,0);
-      pos1 = system[i].get_pos();
-      mass1 = system[i].get_mass();
+      posp = system[p].get_pos();
 
       for (j=0; j < N; j++)
       {
-        if (i!=j)
-        {
+          if (p!=j)
+          {
           // Initialise variables for planet 2.
-          pos2 = system[j].get_pos();
+          posj = system[j].get_pos();
+          massj = system[j].get_mass();
 
           // Calculates the vector between them.
-          distance = pos1 -(pos2);
+          distance = posj -=(posp);
           
           // Calculates the length of the vector.
           // It will always be positive as its been squared.
           length = distance.length();
-          length_cubed = pow(length, 3);
+          length_cubed = length*length*length;
           // This could cause an error
-          answer = distance/=(length_cubed)*=(mass1);
-          //answer = answer*=(mass1);
+          answer = distance/=(length_cubed);
+          answer = answer*=(massj);
 
           // Sums the different accelerations on the planet.
-          acceleration +(answer);
-        }
+          acceleration = acceleration +=(answer);
+            
+          }
+        
       }
+      // Sets acceleration variable of planet.
+      system[p].set_acc(acceleration);
     }
-    // Sets acceleration variable of planet.
-    system[i].set_acc(acceleration);
 }
 
 void compute_energy_L(std::vector<body> &system)
