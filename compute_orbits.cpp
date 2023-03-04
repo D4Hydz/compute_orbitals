@@ -108,10 +108,6 @@ int main(int argc, char* argv[])
       Tsave_counter = 0;   
     }
   }
-  //compute_energy_L(system);
-  //update_acc(system);
-  //save_data(savefile, system, 0); // Example of saving data (for initial state here) 
-
   // -----------------------------------------------------------
   
   savefile.close();
@@ -127,29 +123,29 @@ void vel_verlet(std::vector<body> &system, double dt)
 {
   int N = system.size();
   int i;
-  dt = dt;
   vec pos;
-  vec posc;
   vec velocity;
-  vec velocityc;
   vec acceleration;
-  vec accelerationc;
   vec new_acceleration;
   vec new_position;
   vec new_velocity;
   
+  // Creates a copy of the vector class system.
   std::vector<body> new_system = system;
+
+  // Updates the acceleration of the system.
   update_acc(system);
 
   // Loop through planets in the system updating velocity.
   for (i = 0; i < N; i++)
   {
+    // Initialise variables for this planet.
     pos = system[i].get_pos();
     velocity = system[i].get_vel();
     acceleration = system[i].get_acc();
     
-    // Calculates and sets new position.
-    new_position = pos+=(velocity*=(dt))+=(acceleration*=(dt*dt*0.5));
+    // Calculates and sets new position to the new system.
+    new_position = pos+(velocity*(dt))+(acceleration*(dt*dt*0.5));
     new_system[i].set_pos(new_position);
   }
   
@@ -158,16 +154,21 @@ void vel_verlet(std::vector<body> &system, double dt)
 
   for (i = 0; i < N; i++)
   {
-    //Calculates and sets the new velocities based on the new acceleration and old velocity.
+    // Initialise variables for planets in this loop.
     new_acceleration = new_system[i].get_acc();
     acceleration = system[i].get_acc();
     velocity = system[i].get_vel();
 
-
-    new_velocity = velocity+=((new_acceleration+=(acceleration))*=(dt*0.5));
+    //Calculates the new velocities based on the new acceleration and old velocity.
+    //new_velocity = velocity+((new_acceleration+(acceleration))*(dt*0.5));
+    new_velocity = new_acceleration+(acceleration);
+    new_velocity *=(dt*0.5);
+    new_velocity +=(velocity);
+    // Sets new velocity to new system
     new_system[i].set_vel(new_velocity);
 
   }
+  // Returns the updated values back to original system
   system = new_system;
 } 
 
@@ -180,19 +181,22 @@ void update_acc(std::vector<body> &system)
   vec answer;
   vec posp;
   vec posj;
-  double massj;
   vec distance;
+  double massj;
   double length;
   double length_cubed;
 
+  // Loop through first planet.
   for (p = 0; p < N; p++)
     {
       // Initialise variables for planet 1.
       vec acceleration(0,0,0);
       posp = system[p].get_pos();
 
+      // Loop through second planet.
       for (j=0; j < N; j++)
       {
+          // Planets must be different!
           if (p!=j)
           {
           // Initialise variables for planet 2.
@@ -200,21 +204,20 @@ void update_acc(std::vector<body> &system)
           massj = system[j].get_mass();
 
           // Calculates the vector between them.
-          distance = posj -=(posp);
+          distance = posj -(posp);
           
           // Calculates the length of the vector.
           // It will always be positive as its been squared.
           length = distance.length();
-          length_cubed = length*length*length;
+          length_cubed = pow(length, 3);
+          //length_cubed = length*length*length;
           // This could cause an error
-          answer = distance/=(length_cubed);
-          answer = answer*=(massj);
+          answer = distance/(length_cubed);
+          answer *=(massj);
 
           // Sums the different accelerations on the planet.
-          acceleration = acceleration +=(answer);
-            
+          acceleration +=(answer);
           }
-        
       }
       // Sets acceleration variable of planet.
       system[p].set_acc(acceleration);
@@ -242,6 +245,7 @@ void compute_energy_L(std::vector<body> &system)
     double ke;
     vec L;
 
+    // Loop Planets to calculate gpe
     for (i = 0; i < N; i++)
     {
       // Resets the value of gpe for each planet
@@ -250,9 +254,11 @@ void compute_energy_L(std::vector<body> &system)
       pos1 = system[i].get_pos();
       mass1 = system[i].get_mass();
       velocity1 = system[i].get_vel();
-
-      for (j=0; j < N; j++)
+      
+      // Loop other planets.
+      for (j = 0; j < N; j++)
       {
+        // Skip if it is the same planet.
         if (i!=j)
         {
           // Initialise variables for planet 2.
@@ -261,47 +267,44 @@ void compute_energy_L(std::vector<body> &system)
           velocity2 = system[j].get_vel();
 
           // Calculates the vector between them.
+          /// whats the difference between vec-=() and just vec-()
           distance = pos1 -(pos2);
           
           // Calculates the length of the vector.
           // It will always be positive as its been squared.
           length = distance.length();
           
-          // Calculates the gpe.
+          // Sums the gpe.
+          gpe += (mass1*mass2)/length; 
           
-          gpe += -(mass1*mass2)/length;
-          //std::cout << "gpe" << gpe << std::endl;
-          
-          // Sets the gpe value to the system 1.
-          system[i].set_gpe(gpe);
-          
+          // Negates the value.
+          gpe *= -1;
         }
       }
+      // Sets the final gpe value to the planet.
+      system[i].set_gpe(gpe);
     }
 
-    for (k = 0; k < N; k++) 
+    // Loop planets to calculate kinetic energy and angular momentum.
+    for (i = 0; i < N; i++) 
     {
       // Calculates the kinetic energy 'ke'
-      velocity = system[k].get_vel();
-      mass = system[k].get_mass();
+      velocity = system[i].get_vel();
+      mass = system[i].get_mass();
       ke = velocity.dot(velocity);
-      ke *= 0.5 * mass;
+      ke *= (0.5 * mass);
      
       // Sets the variable for kinetic energy
-      system[k].set_ke(ke);
+      system[i].set_ke(ke);
       
       // Calculates the angular momentum vector 'L'
-      pos = system[k].get_pos();
-      L = pos*(mass);
-      L = L.cross(velocity);
+      pos = system[i].get_pos();
+      L = pos.cross(velocity);
+      L *=(mass);
 
       // Sets the angular momentum variable for this planet.
-      system[k].set_L(L);
+      system[i].set_L(L);
     }
-    
-    
-    
-    //return EXIT_SUCCESS;
 }
 
 // -----------------------------------------------------------
